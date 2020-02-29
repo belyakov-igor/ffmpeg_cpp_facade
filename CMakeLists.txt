@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 3.1.0)
+
+project(ffmpeg_cpp_facade_test)
+
+set(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+add_executable(ffmpeg_cpp_facade_test WIN32 main.cpp ffmpeg_cpp_facade.cpp)
+
+if(WIN32)
+    set_target_properties(ffmpeg_cpp_facade_test PROPERTIES LINK_FLAGS /SUBSYSTEM:CONSOLE)
+endif()
+
+
+
+
+include(lib_paths.cmake)
+
+
+
+add_library(AVCODEC    SHARED IMPORTED)
+add_library(AVDEVICE   SHARED IMPORTED)
+add_library(AVFILTER   SHARED IMPORTED)
+add_library(AVFORMAT   SHARED IMPORTED)
+add_library(AVUTIL     SHARED IMPORTED)
+add_library(POSTPROC   SHARED IMPORTED)
+add_library(SWRESAMPLE SHARED IMPORTED)
+add_library(SWSCALE    SHARED IMPORTED)
+set_property(TARGET AVCODEC    PROPERTY IMPORTED_LOCATION ${AVCODEC_LIB_PATH})
+set_property(TARGET AVDEVICE   PROPERTY IMPORTED_LOCATION ${AVDEVICE_LIB_PATH})
+set_property(TARGET AVFILTER   PROPERTY IMPORTED_LOCATION ${AVFILTER_LIB_PATH})
+set_property(TARGET AVFORMAT   PROPERTY IMPORTED_LOCATION ${AVFORMAT_LIB_PATH})
+set_property(TARGET AVUTIL     PROPERTY IMPORTED_LOCATION ${AVUTIL_LIB_PATH})
+set_property(TARGET POSTPROC   PROPERTY IMPORTED_LOCATION ${POSTPROC_LIB_PATH})
+set_property(TARGET SWRESAMPLE PROPERTY IMPORTED_LOCATION ${SWRESAMPLE_LIB_PATH})
+set_property(TARGET SWSCALE    PROPERTY IMPORTED_LOCATION ${SWSCALE_LIB_PATH})
+if (WIN32)
+    set_property(TARGET AVCODEC    PROPERTY IMPORTED_IMPLIB ${AVCODEC_IMPLIB_PATH})
+    set_property(TARGET AVDEVICE   PROPERTY IMPORTED_IMPLIB ${AVDEVICE_IMPLIB_PATH})
+    set_property(TARGET AVFILTER   PROPERTY IMPORTED_IMPLIB ${AVFILTER_IMPLIB_PATH})
+    set_property(TARGET AVFORMAT   PROPERTY IMPORTED_IMPLIB ${AVFORMAT_IMPLIB_PATH})
+    set_property(TARGET AVUTIL     PROPERTY IMPORTED_IMPLIB ${AVUTIL_IMPLIB_PATH})
+    set_property(TARGET POSTPROC   PROPERTY IMPORTED_IMPLIB ${POSTPROC_IMPLIB_PATH})
+    set_property(TARGET SWRESAMPLE PROPERTY IMPORTED_IMPLIB ${SWRESAMPLE_IMPLIB_PATH})
+    set_property(TARGET SWSCALE    PROPERTY IMPORTED_IMPLIB ${SWSCALE_IMPLIB_PATH})
+
+
+    add_custom_command(
+        TARGET ffmpeg_cpp_facade_test PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FFMPEG_LIB_PATHS}
+                                                      ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Copying ffmpeg libraries to the build dir"
+        VERBATIM
+                      )
+endif()
+
+target_link_libraries(ffmpeg_cpp_facade_test AVCODEC AVUTIL SWSCALE)
+target_include_directories(ffmpeg_cpp_facade_test PRIVATE ${FFMPEG_INCLUDE_PATH})
